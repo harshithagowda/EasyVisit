@@ -17,6 +17,8 @@ public class Visit extends AppCompatActivity {
     private RadioGroup selected_group;
     String category = null;
     Button search;
+    Bundle extras;
+    String location;
 
 
     @Override
@@ -24,6 +26,7 @@ public class Visit extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_visit);
         addListenerOnButtonSearch();
+
     }
 
     public void addListenerOnButtonSearch(){
@@ -35,12 +38,33 @@ public class Visit extends AppCompatActivity {
             public void onClick(View v) {
                 int selectedID = selected_group.getCheckedRadioButtonId();
                 selected_option = (RadioButton)findViewById(selectedID);
+                extras = getIntent().getExtras();
+                location = extras.getString("location");
                 category= selected_option.getText().toString();
 
-                Intent intent = new Intent(getApplicationContext(),CategorySelection.class);
-                intent.putExtra("category",category);
                 System.out.println("............"+category);
-                startActivity(intent);
+                System.out.println("..........."+location);
+
+
+                if(category.equals("Tourist Attractions")){
+                    Intent intent = new Intent(getApplicationContext(),Visit_Tourist_Attractions.class);
+                    intent.putExtra("category",category);
+                    intent.putExtra("location",location);
+                    startActivity(intent);
+                }
+                else if(category.equals("Restaurants")){
+                    Intent intent = new Intent(getApplicationContext(),Visit_Restaurants.class);
+                    intent.putExtra("category",category);
+                    intent.putExtra("location",location);
+                    startActivity(intent);
+                }
+                else if(category.equals("Hotels")){
+                    Intent intent = new Intent(getApplicationContext(),Visit_Hotels.class);
+                    intent.putExtra("category",category);
+                    intent.putExtra("location",location);
+                    startActivity(intent);
+                }
+
             }
         });
     }
