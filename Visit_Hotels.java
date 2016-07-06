@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import org.json.JSONArray;
@@ -35,8 +37,8 @@ public class Visit_Hotels extends AppCompatActivity {
             location = location.replaceAll(" ", "%20");
 
         }
-        Call call = new Call();
-        call.execute(location);
+        Call hotels = new Call();
+        hotels.execute(location);
 
 
     }
@@ -47,6 +49,7 @@ public class Visit_Hotels extends AppCompatActivity {
         JSONArray jsonArr;
         String[] lm;
         String hotelName;
+        String Name=null;
 
         @Override
         protected JSONArray doInBackground(String... params) {
@@ -59,12 +62,46 @@ public class Visit_Hotels extends AppCompatActivity {
         }
 
         @Override
-       protected void onPostExecute(JSONArray result) {
+       protected void onPostExecute(final JSONArray result) {
 
             lm = JsonParser(result);
             ListView r_listView = (ListView) findViewById(R.id.listView);
             ArrayAdapter adapter = new ArrayAdapter(getApplicationContext(),android.R.layout.simple_list_item_1,lm);
             r_listView.setAdapter(adapter);
+            r_listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    System.out.println("Inside onclick");
+                    Name = lm[position];
+                    System.out.println("trying to send the name of the hotel"+Name);
+
+                    try{
+
+                        for(int j=0;j<result.length();j++){
+                            String coordinates;
+                            String name;
+                            JSONObject value = result.getJSONObject(j);
+                            name = value.getString("name");
+                            if(name.equals(lm[position])){
+
+                                JSONObject pos = value.getJSONObject("position");
+                                coordinates = pos.getString("coordinates");
+                                System.out.println("the restaurant coordinates are :"+coordinates);
+
+                                Intent navigate = new Intent(Visit_Hotels.this,MapsActivity.class);
+                                navigate.putExtra("coordinates",coordinates);
+                                startActivity(navigate);
+                            }
+                            else
+                                continue;
+                        }
+                    }
+                    catch(Exception Ex){
+                        Ex.printStackTrace();
+                    }
+                }
+            });
 
 
         }

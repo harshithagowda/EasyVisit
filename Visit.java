@@ -47,7 +47,8 @@ public class Visit extends AppCompatActivity {
 
 
                 if(category.equals("Tourist Attractions")){
-                    Intent intent = new Intent(getApplicationContext(),Visit_Tourist_Attractions.class);
+                    //Intent intent = new Intent(getApplicationContext(),Visit_Tourist_Attractions.class);
+                    Intent intent = new Intent(getApplicationContext(),GeoPosition_to_LatLng.class);
                     intent.putExtra("category",category);
                     intent.putExtra("location",location);
                     startActivity(intent);

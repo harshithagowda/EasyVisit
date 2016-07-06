@@ -55,35 +55,6 @@ public abstract class RestParser {
     }
 
 
-    public static JSONArray getResponseForUrlWithHeaders(String url, String requestMethod, HashMap<String, String> headers) {
-
-        InputStream inputStream = null;
-        HttpURLConnection urlConnection = null;
-        try {
-            URL urlToOpen = new URL(url);
-            urlConnection = (HttpURLConnection) urlToOpen.openConnection();
-            //urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-
-            for(Map.Entry<String, String> entry: headers.entrySet()){
-                urlConnection.setRequestProperty(entry.getKey(), entry.getValue());
-
-            }
-
-            /** Set Method **/
-            urlConnection.setRequestMethod(requestMethod);
-            int statusCode = urlConnection.getResponseCode();
-
-            if(statusCode == 200){
-                inputStream = new BufferedInputStream(urlConnection.getInputStream());
-                return new JSONArray(getResponseText(inputStream));
-            }
-
-
-        } catch (Exception e){
-            Log.d("getResponseForUrl", e.getLocalizedMessage());
-        }
-        return  null;
-    }
 
 }
 

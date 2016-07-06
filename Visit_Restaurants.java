@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import org.json.JSONArray;
@@ -35,8 +37,8 @@ public class Visit_Restaurants extends AppCompatActivity {
             location = location.replaceAll(" ", "%20");
 
         }
-        Call call = new Call();
-        call.execute(location);
+        Call restaurants = new Call();
+        restaurants.execute(location);
 
 
     }
@@ -44,49 +46,83 @@ public class Visit_Restaurants extends AppCompatActivity {
 
     class Call extends AsyncTask<String, String, JSONArray> {
 
-        JSONArray jsonArr;
-        String[] lm;
-        String hotelName;
+        JSONArray jsonA;
+        String[] arr;
+        String Name=null;
+
 
         @Override
         protected JSONArray doInBackground(String... params) {
             url = "http://terminal2.expedia.com/x/geo/features?ln.op=cn&ln.value="+location+"&limit=10&apikey=L2ZB8VtZrd2AKA8ZjvysemHTVJAWIrMC";
             //http://terminal2.expedia.com/x/geo/features?ln.op=cn&ln.value=seattle%20center&limit=5&apikey=L2ZB8VtZrd2AKA8ZjvysemHTVJAWIrMC";
             //"http://terminal2.expedia.com/x/geo/features?within=1km&lng=-122.453269&lat=37.777363&type=point_of_interest&apikey=L2ZB8VtZrd2AKA8ZjvysemHTVJAWIrMC";
-            jsonArr = RestParser.getResponseForUrl(url, "GET");
+            jsonA = RestParser.getResponseForUrl(url, "GET");
             System.out.println("Trying to print........." + params[0]);
-            return jsonArr;
+            return jsonA;
         }
 
         @Override
-        protected void onPostExecute(JSONArray result) {
+        protected void onPostExecute(final JSONArray result) {
 
-            lm = JsonParser(result);
+            arr = JsonParser(result);
             ListView r_listView = (ListView) findViewById(R.id.listView);
-            ArrayAdapter adapter = new ArrayAdapter(getApplicationContext(),android.R.layout.simple_list_item_1,lm);
+            r_listView.setClickable(true);
+            ArrayAdapter adapter = new ArrayAdapter(getApplicationContext(),android.R.layout.simple_list_item_1,arr);
             r_listView.setAdapter(adapter);
+            r_listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    System.out.println("Inside onclick");
+                    Name = arr[position];
+                    System.out.println("trying to send the name of the restaurant"+Name);
 
+                    try{
+
+                        for(int j=0;j<result.length();j++){
+                            String coordinates;
+                            String name;
+                            JSONObject value = result.getJSONObject(j);
+                            name = value.getString("name");
+                            if(name.equals(arr[position])){
+
+                                JSONObject pos = value.getJSONObject("position");
+                                coordinates = pos.getString("coordinates");
+                                System.out.println("the restaurant coordinates are :"+coordinates);
+
+                                Intent navigate = new Intent(Visit_Restaurants.this,MapsActivity.class);
+                                navigate.putExtra("coordinates",coordinates);
+                                startActivity(navigate);
+                            }
+                            else
+                                continue;
+                        }
+                    }
+                    catch(Exception Ex){
+                        Ex.printStackTrace();
+                    }
+                }
+            });
         }
 
         private String[] JsonParser(JSONArray jsonobj) {
 
-            String[] lm = new String[jsonobj.length()];
+            String[] localcopy = new String[jsonobj.length()];
             try{
 
                 for(int i=0;i<jsonobj.length();i++){
                     String name;
                     JSONObject item = jsonobj.getJSONObject(i);
                     name = item.getString("name");
-                    System.out.println("print the name of the hotel....."+name);
-                    lm[i]=name;
+                    System.out.println("print the name of the restaurants....."+name);
+                    localcopy[i]=name;
                 }
             }
             catch(Exception e){
                 e.printStackTrace();
             }
 
-            return lm;
+            return localcopy;
         }
     }
 
